@@ -18,7 +18,8 @@
    //  x12 (a2): 10
    //  x13 (a3): 1..10
    //  x14 (a4): Sum
-
+   //
+   m4_asm(ADDI, x0, x0, 0)              // NOP to compensate for makerchip cycle skip
    m4_asm(ADDI, x14, x0, 0)             // Initialize sum register a4 with 0
    m4_asm(ADDI, x12, x0, 1010)          // Store count of 10 in register a2.
    m4_asm(ADDI, x13, x0, 1)             // Initialize loop count register a3 with 0
@@ -44,7 +45,6 @@
    // Program Counter
    // Reset to 0x00000000, otherwise increment by 4 bytes per instruction
    $pc[31:0] = $reset ? 32'h00000000 : >>1$next_pc[31:0];
-   $next_pc[31:0] = $pc + 4;
 
    // Verilog macro for instruction memory - fetch 32-bit
    // instruction at PC address
@@ -110,6 +110,29 @@
    // Prevent "unused signal" warnings
    `BOGUS_USE($is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $is_addi $is_add)
 
+   // ALU: Determine the instruction and assign the 32 bit result to $result
+   // based on the instruction.
+   $result[31:0] = $is_add ? $src1_value + $src2_value :
+                    $is_addi ? $src1_value + $imm :
+                    32'b0;
+
+   // Branch Logic: Check whether the instruction is a branch instruction.
+   // If so determine the branch condition and whether the condition is met.
+   // If conditions are met $taken_br will be true (1) or false (0) if not.
+   $taken_br = $is_beq ? $src1_value == $src2_value :
+                $is_bne ? $src1_value != $src2_value :
+                $is_blt ? ($src1_value < $src2_value) ^ ($src1_value[31] != $src2_value[31]) :
+                $is_bge ? ($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31]) :
+                $is_bltu ? $src1_value < $src2_value :
+                $is_bgeu ? $src1_value >= $src2_value :
+                1'b0;
+
+   // Assign the branch target to $br_tgt_pc and if the branch is taken,
+   // update $next_pc to $br_tgt_pc. Go to next instruction if not.
+   $br_tgt_pc[31:0] = $pc + $imm;
+   $next_pc[31:0] = $taken_br ? $br_tgt_pc :
+               $pc + 4;
+
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
    *failed = *cyc_cnt > M4_MAX_CYC;
@@ -118,7 +141,7 @@
    // Instantiates a 32-entry, 32-bit-wide register file connected to the given
    // input and output signals.
    // Reads rs1 -> src1_value when rs1_valid, rs2 -> src2_value when rs2_valid
-   m4+rf(32, 32, $reset, $wr_en, $wr_index[4:0], $wr_data[31:0], $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
+   m4+rf(32, 32, $reset, $rd_valid, $rd, $result, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
    //m4+dmem(32, 32, $reset, $addr[4:0], $wr_en, $wr_data[31:0], $rd_en, $rd_data)
    m4+cpu_viz()
 \SV
