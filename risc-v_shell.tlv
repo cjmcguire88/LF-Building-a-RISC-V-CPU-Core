@@ -1,7 +1,7 @@
 \m4_TLV_version 1d: tl-x.org
 \SV
    // This code can be found in: https://github.com/stevehoover/LF-Building-a-RISC-V-CPU-Core/risc-v_shell.tlv
-   
+
    m4_include_lib(['https://raw.githubusercontent.com/stevehoover/LF-Building-a-RISC-V-CPU-Core/main/lib/risc-v_shell_lib.tlv'])
 
 
@@ -19,15 +19,14 @@
    //  x13 (a3): 1..10
    //  x14 (a4): Sum
    //
-   // m4_asm(ADDI, x0, x0, 0)              // NOP to compensate for makerchip cycle skip
    // m4_asm(ADDI, x14, x0, 0)             // Initialize sum register a4 with 0
    // m4_asm(ADDI, x12, x0, 1010)          // Store count of 10 in register a2.
    // m4_asm(ADDI, x13, x0, 1)             // Initialize loop count register a3 with 0
-   // // Loop:
+   // Loop:
    // m4_asm(ADD, x14, x13, x14)           // Incremental summation
    // m4_asm(ADDI, x13, x13, 1)            // Increment loop count by 1
    // m4_asm(BLT, x13, x12, 1111111111000) // If a3 is less than a2, branch to label named <loop>
-   // // Test result value in x14, and set x31 to reflect pass/fail.
+   // Test result value in x14, and set x31 to reflect pass/fail.
    // m4_asm(ADDI, x30, x14, 111111010100) // Subtract expected value of 44 to set x30 to 1 if and only iff the result is 45 (1 + 2 + ... + 9).
    // m4_asm(BGE, x0, x0, 0) // Done. Jump to itself (infinite loop). (Up to 20-bit signed immediate plus implicit 0 bit (unlike JALR) provides byte address; last immediate bit should also be 0)
    // m4_asm_end()
@@ -43,6 +42,7 @@
 \TLV
 
    $reset = *reset;
+
    // Program Counter
    // Reset to 0x00000000, otherwise increment by 4 bytes per instruction
    $pc[31:0] = $reset ? 32'h00000000 : >>1$next_pc[31:0];
@@ -143,10 +143,43 @@
    // Prevent "unused signal" warnings
    `BOGUS_USE($is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $is_addi $is_add)
 
+   // SLTU and SLTIU (set if less than, unsigned) results:
+   $sltu_rslt[31:0] = {31'b0, $src1_value < $src2_value};
+   $sltiu_rslt[31:0] = {31'b0, $src1_value < $imm};
+
+   // SRA and SRAI (shift right, arithmetic) results:
+   //  sign-extended src1
+   $sext_src1[63:0] = { {32{$src1_value[31]}}, $src1_value };
+
+   // 64 bit sign-extended results, to be truncated
+   $sra_rslt[63:0] = $sext_src1 >> $src2_value[4:0];
+   $srai_rslt[63:0] = $sext_src1 >> $imm[4:0];
+
    // ALU: Determine the instruction and assign the 32 bit result to $result
    // based on the instruction.
-   $result[31:0] = $is_add ? $src1_value + $src2_value :
+   $result[31:0] = $is_andi ? $src1_value & $imm :
+                    $is_ori ? $src1_value | $imm :
+                    $is_xori ? $src1_value ^ $imm :
                     $is_addi ? $src1_value + $imm :
+                    $is_slli ? $src1_value << $imm[5:0] :
+                    $is_srli ? $src1_value >> $imm[5:0] :
+                    $is_and ? $src1_value & $src2_value :
+                    $is_or ? $src1_value | $src2_value :
+                    $is_xor ? $src1_value ^ $src2_value :
+                    $is_add ? $src1_value + $src2_value :
+                    $is_sub ? $src1_value - $src2_value :
+                    $is_sll ? $src1_value << $src2_value[4:0] :
+                    $is_srl ? $src1_value >> $src2_value[4:0] :
+                    $is_sltu ? $sltu_rslt :
+                    $is_sltiu ? $sltiu_rslt :
+                    $is_lui ? {$imm[31:12], 12'b0} :
+                    $is_auipc ? $pc + $imm :
+                    $is_jal ? $pc + 32'd4 :
+                    $is_jalr ? $pc + 32'd4 :
+                    $is_slt ? ( ($src1_value[31] == $src2_value[31]) ? $sltu_rslt : {31'b0, $src1_value[31]} ) :
+                    $is_slti ? ( ($src1_value[31] == $imm[31]) ? $sltiu_rslt : {31'b0, $src1_value[31]} ) :
+                    $is_sra ? $sra_rslt :
+                    $is_srai ? $srai_rslt :
                     32'b0;
 
    // Branch Logic: Check whether the instruction is a branch instruction.
@@ -164,17 +197,18 @@
    // update $next_pc to $br_tgt_pc. Go to next instruction if not.
    $br_tgt_pc[31:0] = $pc + $imm;
    $next_pc[31:0] = $taken_br ? $br_tgt_pc :
-               $pc + 4;
+                     $reset ? 32'b0 :
+                     $pc + 4;
+
 
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
    *failed = *cyc_cnt > M4_MAX_CYC;
 
-   // TL-Verilog array definition, expanded by the M4 macro preprocessor.
-   // Instantiates a 32-entry, 32-bit-wide register file connected to the given
-   // input and output signals.
-   // Reads rs1 -> src1_value when rs1_valid, rs2 -> src2_value when rs2_valid
+   // Instantiate the Makerchip register file
    m4+rf(32, 32, $reset, $rd_valid, $rd, $result, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
+
+   // Instantiate the Makerchip data memory file
    //m4+dmem(32, 32, $reset, $addr[4:0], $wr_en, $wr_data[31:0], $rd_en, $rd_data)
    m4+cpu_viz()
 \SV
