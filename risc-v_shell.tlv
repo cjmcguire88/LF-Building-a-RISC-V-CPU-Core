@@ -19,19 +19,20 @@
    //  x13 (a3): 1..10
    //  x14 (a4): Sum
    //
-   m4_asm(ADDI, x0, x0, 0)              // NOP to compensate for makerchip cycle skip
-   m4_asm(ADDI, x14, x0, 0)             // Initialize sum register a4 with 0
-   m4_asm(ADDI, x12, x0, 1010)          // Store count of 10 in register a2.
-   m4_asm(ADDI, x13, x0, 1)             // Initialize loop count register a3 with 0
-   // Loop:
-   m4_asm(ADD, x14, x13, x14)           // Incremental summation
-   m4_asm(ADDI, x13, x13, 1)            // Increment loop count by 1
-   m4_asm(BLT, x13, x12, 1111111111000) // If a3 is less than a2, branch to label named <loop>
-   // Test result value in x14, and set x31 to reflect pass/fail.
-   m4_asm(ADDI, x30, x14, 111111010100) // Subtract expected value of 44 to set x30 to 1 if and only iff the result is 45 (1 + 2 + ... + 9).
-   m4_asm(BGE, x0, x0, 0) // Done. Jump to itself (infinite loop). (Up to 20-bit signed immediate plus implicit 0 bit (unlike JALR) provides byte address; last immediate bit should also be 0)
-   m4_asm_end()
-   m4_define(['M4_MAX_CYC'], 50)
+   // m4_asm(ADDI, x0, x0, 0)              // NOP to compensate for makerchip cycle skip
+   // m4_asm(ADDI, x14, x0, 0)             // Initialize sum register a4 with 0
+   // m4_asm(ADDI, x12, x0, 1010)          // Store count of 10 in register a2.
+   // m4_asm(ADDI, x13, x0, 1)             // Initialize loop count register a3 with 0
+   // // Loop:
+   // m4_asm(ADD, x14, x13, x14)           // Incremental summation
+   // m4_asm(ADDI, x13, x13, 1)            // Increment loop count by 1
+   // m4_asm(BLT, x13, x12, 1111111111000) // If a3 is less than a2, branch to label named <loop>
+   // // Test result value in x14, and set x31 to reflect pass/fail.
+   // m4_asm(ADDI, x30, x14, 111111010100) // Subtract expected value of 44 to set x30 to 1 if and only iff the result is 45 (1 + 2 + ... + 9).
+   // m4_asm(BGE, x0, x0, 0) // Done. Jump to itself (infinite loop). (Up to 20-bit signed immediate plus implicit 0 bit (unlike JALR) provides byte address; last immediate bit should also be 0)
+   // m4_asm_end()
+   // m4_define(['M4_MAX_CYC'], 50)
+   m4_test_prog()
    //---------------------------------------------------------------------------------
 
 
@@ -51,7 +52,8 @@
    `READONLY_MEM($pc[31:0], $$instr[31:0])
 
    //Decode instruction type by comparing opcodes
-   $is_u_instr = $instr[6:2] ==? 5'b00101;
+   $is_u_instr = $instr[6:2] ==? 5'b00101 ||
+                 $instr[6:2] ==? 5'b01101;
    $is_i_instr = $instr[6:2] ==? 5'b00000 ||
                  $instr[6:2] ==? 5'b00001 ||
                  $instr[6:2] ==? 5'b11001 ||
@@ -98,14 +100,45 @@
    // x as a don't care value as instr[30] is only needed to distinguish between
    // add and sub instructions. Underscore is used as a field separator.
    $dec_bits[10:0] = {$instr[30],$funct3,$opcode};
-   $is_beq = $dec_bits ==? 11'bx_000_1100011;
-   $is_bne = $dec_bits ==? 11'bx_001_1100011;
-   $is_blt = $dec_bits ==? 11'bx_100_1100011;
-   $is_bge = $dec_bits ==? 11'bx_101_1100011;
-   $is_bltu = $dec_bits ==? 11'bx_110_1100011;
-   $is_bgeu = $dec_bits ==? 11'bx_111_1100011;
-   $is_addi = $dec_bits ==? 11'bx_000_0010011;
-   $is_add = $dec_bits ==? 11'b0_000_0110011;
+   $is_lui   = $is_u_instr && $dec_bits ==? 11'bx_xxx_x1xxxxx;
+   $is_auipc = $is_u_instr && $dec_bits ==? 11'bx_xxx_x0xxxxx;
+   $is_jal   = $is_j_instr;
+   $is_jalr  = $is_i_instr && $dec_bits ==? 11'bx_000_11001xx;
+   $is_beq   = $is_b_instr && $dec_bits ==? 11'bx_000_xxxxxxx;
+   $is_bne   = $is_b_instr && $dec_bits ==? 11'bx_001_xxxxxxx;
+   $is_blt   = $is_b_instr && $dec_bits ==? 11'bx_100_xxxxxxx;
+   $is_bge   = $is_b_instr && $dec_bits ==? 11'bx_101_xxxxxxx;
+   $is_bltu  = $is_b_instr && $dec_bits ==? 11'bx_110_xxxxxxx;
+   $is_bgeu  = $is_b_instr && $dec_bits ==? 11'bx_111_xxxxxxx;
+   $is_addi  = $is_i_instr && $dec_bits ==? 11'bx_000_00100xx;
+   $is_slti  = $is_i_instr && $dec_bits ==? 11'bx_010_00100xx;
+   $is_sltiu = $is_i_instr && $dec_bits ==? 11'bx_011_00100xx;
+   $is_xori  = $is_i_instr && $dec_bits ==? 11'bx_100_00100xx;
+   $is_ori   = $is_i_instr && $dec_bits ==? 11'bx_110_00100xx;
+   $is_andi  = $is_i_instr && $dec_bits ==? 11'bx_111_00100xx;
+   $is_slli  = $is_i_instr && $dec_bits ==? 11'b0_001_00100xx;
+   $is_srli  = $is_i_instr && $dec_bits ==? 11'b0_101_00100xx;
+   $is_srai  = $is_i_instr && $dec_bits ==? 11'b1_101_00100xx;
+   $is_add   = $is_r_instr && $dec_bits ==? 11'b0_000_01100xx;
+   $is_sub   = $is_r_instr && $dec_bits ==? 11'b1_000_01100xx;
+   $is_sll   = $is_r_instr && $dec_bits ==? 11'b0_001_01100xx;
+   $is_slt   = $is_r_instr && $dec_bits ==? 11'b0_010_01100xx;
+   $is_sltu  = $is_r_instr && $dec_bits ==? 11'b0_011_01100xx;
+   $is_xor   = $is_r_instr && $dec_bits ==? 11'b0_100_01100xx;
+   $is_srl   = $is_r_instr && $dec_bits ==? 11'b0_101_01100xx;
+   $is_sra   = $is_r_instr && $dec_bits ==? 11'b1_101_01100xx;
+   $is_or    = $is_r_instr && $dec_bits ==? 11'b0_110_01100xx;
+   $is_and   = $is_r_instr && $dec_bits ==? 11'b0_111_01100xx;
+   $is_load  = $is_i_instr && $dec_bits ==? 11'bx_xxx_00000xx;
+   // $is_lb    = $is_i_instr && $dec_bits ==? 11'bx_000_00000xx;
+   // $is_lh    = $is_i_instr && $dec_bits ==? 11'bx_001_00000xx;
+   // $is_lw    = $is_i_instr && $dec_bits ==? 11'bx_010_00000xx;
+   // $is_lbu   = $is_i_instr && $dec_bits ==? 11'bx_100_00000xx;
+   // $is_lhu   = $is_i_instr && $dec_bits ==? 11'bx_101_00000xx;
+   // $is_store = $is_s_instr;
+   // $is_sb    = $is_s_instr && $dec_bits ==? 11'b0_000_01000xx;
+   // $is_sh    = $is_s_instr && $dec_bits ==? 11'b0_001_01000xx;
+   // $is_sw    = $is_s_instr && $dec_bits ==? 11'b0_010_01000xx;
 
    // Prevent "unused signal" warnings
    `BOGUS_USE($is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $is_addi $is_add)
