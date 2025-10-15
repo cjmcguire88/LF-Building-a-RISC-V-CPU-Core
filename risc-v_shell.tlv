@@ -30,15 +30,14 @@
    // m4_asm(ADDI, x30, x14, 111111010100) // Subtract expected value of 44 to set x30 to 1 if and only iff the result is 45 (1 + 2 + ... + 9).
    // m4_asm(BGE, x0, x0, 0) // Done. Jump to itself (infinite loop). (Up to 20-bit signed immediate plus implicit 0 bit (unlike JALR) provides byte address; last immediate bit should also be 0)
    // m4_asm_end()
-   // m4_define(['M4_MAX_CYC'], 50)
+   // Test program
    m4_test_prog()
+   m4_define(['M4_MAX_CYC'], 50)
    //---------------------------------------------------------------------------------
-
-
 
 \SV
    m4_makerchip_module   // (Expanded in Nav-TLV pane.)
-   /* verilator lint_on WIDTH */
+
 \TLV
 
    $reset = *reset;
@@ -81,10 +80,7 @@
    $rs2_valid = $is_r_instr || $is_s_instr || $is_b_instr;
    $funct3_valid = $is_r_instr || $is_i_instr || $is_s_instr || $is_b_instr;
    $imm_valid = $is_i_instr || $is_s_instr || $is_b_instr || $is_u_instr || $is_j_instr;
-
-   // Prevent "unused signal" warnings
-   `BOGUS_USE($rd $rd_valid $rs1 $rs1_valid $rs2 $rs2_valid $funct3 $funct3_valid $imm $imm_valid)
-
+   `BOGUS_USE($funct3_valid $imm_valid)
    // The fields containing the immediate value vary based on instruction type.
    // Here we construct the immediate value from the instruction bits depending
    // on instruction type.
@@ -97,8 +93,8 @@
 
    // Here we combine the opcode, funct3 and instr[30] (funct7[5] if r-type)
    // fields in $dec_bits and then compare them to known instructions. We use
-   // x as a don't care value as instr[30] is only needed to distinguish between
-   // add and sub instructions. Underscore is used as a field separator.
+   // x as a don't care value i.e. instr[30] is only needed to distinguish
+   // between add and sub instructions. Underscore is used as a field separator.
    $dec_bits[10:0] = {$instr[30],$funct3,$opcode};
    $is_lui   = $is_u_instr && $dec_bits ==? 11'bx_xxx_x1xxxxx;
    $is_auipc = $is_u_instr && $dec_bits ==? 11'bx_xxx_x0xxxxx;
@@ -140,9 +136,6 @@
    // $is_sh    = $is_s_instr && $dec_bits ==? 11'b0_001_01000xx;
    // $is_sw    = $is_s_instr && $dec_bits ==? 11'b0_010_01000xx;
 
-   // Prevent "unused signal" warnings
-   `BOGUS_USE($is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $is_addi $is_add)
-
    // SLTU and SLTIU (set if less than, unsigned) results:
    $sltu_rslt[31:0] = {31'b0, $src1_value < $src2_value};
    $sltiu_rslt[31:0] = {31'b0, $src1_value < $imm};
@@ -180,6 +173,8 @@
                     $is_slti ? ( ($src1_value[31] == $imm[31]) ? $sltiu_rslt : {31'b0, $src1_value[31]} ) :
                     $is_sra ? $sra_rslt :
                     $is_srai ? $srai_rslt :
+                    $is_load ? $src1_value + $imm :
+                    $is_s_instr ? $src1_value + $imm :
                     32'b0;
 
    // Branch Logic: Check whether the instruction is a branch instruction.
@@ -203,15 +198,20 @@
                      $is_jalr ? $jalr_tgt_pc :
                      $pc + 4;
 
+   // Assign the data to be written to the register file
+   $rf_wr_data[31:0] = $is_load ? $ld_data : $result;
+
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
    *failed = *cyc_cnt > M4_MAX_CYC;
 
    // Instantiate the Makerchip register file
-   m4+rf(32, 32, $reset, $rd_valid, $rd, $result, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
+   m4+rf(32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
 
    // Instantiate the Makerchip data memory file
-   //m4+dmem(32, 32, $reset, $addr[4:0], $wr_en, $wr_data[31:0], $rd_en, $rd_data)
+   m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data)
+
+   // Instantiate the Makerchip cpu viz
    m4+cpu_viz()
 \SV
    endmodule
