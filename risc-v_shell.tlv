@@ -32,7 +32,7 @@
    // m4_asm_end()
    // Test program
    m4_test_prog()
-   m4_define(['M4_MAX_CYC'], 50)
+   m4_define(['M4_MAX_CYC'], 60)
    //---------------------------------------------------------------------------------
 
 \SV
@@ -44,7 +44,7 @@
 
    // Program Counter
    // Reset to 0x00000000, otherwise increment by 4 bytes per instruction
-   $pc[31:0] = $reset ? 32'h00000000 : >>1$next_pc[31:0];
+   $pc[31:0] = >>1$reset ? 32'h00000000 : >>1$next_pc[31:0];
 
    // Verilog macro for instruction memory - fetch 32-bit
    // instruction at PC address
@@ -192,8 +192,7 @@
    // update $next_pc to $br_tgt_pc. Go to next instruction if not.
    $br_tgt_pc[31:0] = $pc + $imm;
    $jalr_tgt_pc[31:0] = $src1_value + $imm;
-   $next_pc[31:0] = $reset ? 32'b0 :
-                     $taken_br ? $br_tgt_pc :
+   $next_pc[31:0] = $taken_br ? $br_tgt_pc :
                      $is_jal ? $br_tgt_pc :
                      $is_jalr ? $jalr_tgt_pc :
                      $pc + 4;

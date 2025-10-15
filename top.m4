@@ -44,7 +44,7 @@
 
    // Program Counter
    // Reset to 0x00000000, otherwise increment by 4 bytes per instruction
-   $pc[31:0] = $reset ? 32'h00000000 : >>1$next_pc[31:0];
+   $pc[31:0] = >>1$reset ? 32'h00000000 : >>1$next_pc[31:0];
 
    // Verilog macro for instruction memory - fetch 32-bit
    // instruction at PC address
@@ -192,8 +192,7 @@
    // update $next_pc to $br_tgt_pc. Go to next instruction if not.
    $br_tgt_pc[31:0] = $pc + $imm;
    $jalr_tgt_pc[31:0] = $src1_value + $imm;
-   $next_pc[31:0] = $reset ? 32'b0 :
-                     $taken_br ? $br_tgt_pc :
+   $next_pc[31:0] = $taken_br ? $br_tgt_pc :
                      $is_jal ? $br_tgt_pc :
                      $is_jalr ? $jalr_tgt_pc :
                      $pc + 4;
@@ -206,7 +205,7 @@
    *failed = *cyc_cnt > 60;
 
    // Instantiate the Makerchip register file
-   \source /raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv 124   // Instantiated from top.tlv, 209 as: m4+rf(32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
+   \source /raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv 124   // Instantiated from top.tlv, 208 as: m4+rf(32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
       $rf1_wr_en = $rd_valid;
       $rf1_wr_index[\$clog2(32)-1:0]  = $rd;
       $rf1_wr_data[32-1:0] = $rf_wr_data;
@@ -270,7 +269,7 @@
    \end_source
 
    // Instantiate the Makerchip data memory file
-   \source /raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv 186   // Instantiated from top.tlv, 212 as: m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data)
+   \source /raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv 186   // Instantiated from top.tlv, 211 as: m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data)
       // Allow expressions for most inputs, so define input signals.
       $dmem1_wr_en = $is_s_instr;
       $dmem1_addr[\$clog2(32)-1:0] = $result[6:2];
@@ -326,7 +325,7 @@
    \end_source
 
    // Instantiate the Makerchip cpu viz
-   \source /raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv 240   // Instantiated from top.tlv, 215 as: m4+cpu_viz()
+   \source /raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv 240   // Instantiated from top.tlv, 214 as: m4+cpu_viz()
       // String representations of the instructions for debug.
       \SV_plus
          // A default signal for ones that are not found.

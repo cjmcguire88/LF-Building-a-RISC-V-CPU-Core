@@ -44,7 +44,7 @@ m5__l(41)\TLV
 
    // Program Counter
    // Reset to 0x00000000, otherwise increment by 4 bytes per instruction
-   $pc[31:0] = $reset ? 32'h00000000 : >>1$next_pc[31:0];
+   $pc[31:0] = >>1$reset ? 32'h00000000 : >>1$next_pc[31:0];
 
    // Verilog macro for instruction memory - fetch 32-bit
    // instruction at PC address
@@ -192,8 +192,7 @@ m5__l(41)\TLV
    // update $next_pc to $br_tgt_pc. Go to next instruction if not.
    $br_tgt_pc[31:0] = $pc + $imm;
    $jalr_tgt_pc[31:0] = $src1_value + $imm;
-   $next_pc[31:0] = $reset ? 32'b0 :
-                     $taken_br ? $br_tgt_pc :
+   $next_pc[31:0] = $taken_br ? $br_tgt_pc :
                      $is_jal ? $br_tgt_pc :
                      $is_jalr ? $jalr_tgt_pc :
                      $pc + 4;
@@ -206,13 +205,13 @@ m5__l(41)\TLV
    *failed = *cyc_cnt > M4_MAX_CYC;
 
    // Instantiate the Makerchip register file
-   m4_instantiate(rf,    , top.tlv, 209,    // Instantiated from top.tlv, 209 as: m4+rf(32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value), (32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value), )
+   m4_instantiate(rf,    , top.tlv, 208,    // Instantiated from top.tlv, 208 as: m4+rf(32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value), (32, 32, $reset, $rd_valid, $rd, $rf_wr_data, $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value), )
 
    // Instantiate the Makerchip data memory file
-   m4_instantiate(dmem,    , top.tlv, 212,    // Instantiated from top.tlv, 212 as: m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data), (32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data), )
+   m4_instantiate(dmem,    , top.tlv, 211,    // Instantiated from top.tlv, 211 as: m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data), (32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data), )
 
    // Instantiate the Makerchip cpu viz
-   m4_instantiate(cpu_viz,    , top.tlv, 215,    // Instantiated from top.tlv, 215 as: m4+cpu_viz(), (), )
-m5__l(216)\SV
+   m4_instantiate(cpu_viz,    , top.tlv, 214,    // Instantiated from top.tlv, 214 as: m4+cpu_viz(), (), )
+m5__l(215)\SV
    endmodule
 m4_popdef(m4_file_uri)

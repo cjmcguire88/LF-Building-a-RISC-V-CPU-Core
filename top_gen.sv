@@ -178,7 +178,8 @@ logic [4:0] L0_rd_a0;
 logic L0_rd_valid_a0;
 
 // For $reset.
-logic L0_reset_a0;
+logic L0_reset_a0,
+      L0_reset_a1;
 
 // For $result.
 logic [31:0] L0_result_a0;
@@ -255,6 +256,9 @@ logic [32-1:0] Xreg_value_n1 [31:0],
 
    // Staging of $next_pc.
    always_ff @(posedge clk) L0_next_pc_a1[31:0] <= L0_next_pc_a0[31:0];
+
+   // Staging of $reset.
+   always_ff @(posedge clk) L0_reset_a1 <= L0_reset_a0;
 
 
    //
