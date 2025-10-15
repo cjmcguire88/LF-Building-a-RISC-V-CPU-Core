@@ -1,4 +1,4 @@
-line 2 "top.tlv" 0
+`line 2 "top.tlv" 0
 //_\SV
    // This code can be found in: https://github.com/stevehoover/LF-Building-a-RISC-V-CPU-Core/risc-v_shell.tlv
 
@@ -32,7 +32,7 @@ line 2 "top.tlv" 0
    // m4_asm_end()
    // Test program
    `define READONLY_MEM(ADDR, DATA) logic [31:0] instrs [0:58-1]; assign DATA = instrs[ADDR[$clog2($size(instrs)) + 1 : 2]]; assign instrs = '{{12'b10101, 5'd0, 3'b000, 5'd1, 7'b0010011}, {12'b111, 5'd0, 3'b000, 5'd2, 7'b0010011}, {12'b111111111100, 5'd0, 3'b000, 5'd3, 7'b0010011}, {12'b1011100, 5'd1, 3'b111, 5'd5, 7'b0010011}, {12'b10101, 5'd5, 3'b100, 5'd5, 7'b0010011}, {12'b1011100, 5'd1, 3'b110, 5'd6, 7'b0010011}, {12'b1011100, 5'd6, 3'b100, 5'd6, 7'b0010011}, {12'b111, 5'd1, 3'b000, 5'd7, 7'b0010011}, {12'b11101, 5'd7, 3'b100, 5'd7, 7'b0010011}, {6'b000000, 6'b110, 5'd1, 3'b001, 5'd8, 7'b0010011}, {12'b10101000001, 5'd8, 3'b100, 5'd8, 7'b0010011}, {6'b000000, 6'b10, 5'd1, 3'b101, 5'd9, 7'b0010011}, {12'b100, 5'd9, 3'b100, 5'd9, 7'b0010011}, {7'b0000000, 5'd2, 5'd1, 3'b111, 5'd10, 7'b0110011}, {12'b100, 5'd10, 3'b100, 5'd10, 7'b0010011}, {7'b0000000, 5'd2, 5'd1, 3'b110, 5'd11, 7'b0110011}, {12'b10110, 5'd11, 3'b100, 5'd11, 7'b0010011}, {7'b0000000, 5'd2, 5'd1, 3'b100, 5'd12, 7'b0110011}, {12'b10011, 5'd12, 3'b100, 5'd12, 7'b0010011}, {7'b0000000, 5'd2, 5'd1, 3'b000, 5'd13, 7'b0110011}, {12'b11101, 5'd13, 3'b100, 5'd13, 7'b0010011}, {7'b0100000, 5'd2, 5'd1, 3'b000, 5'd14, 7'b0110011}, {12'b1111, 5'd14, 3'b100, 5'd14, 7'b0010011}, {7'b0000000, 5'd2, 5'd2, 3'b001, 5'd15, 7'b0110011}, {12'b1110000001, 5'd15, 3'b100, 5'd15, 7'b0010011}, {7'b0000000, 5'd2, 5'd1, 3'b101, 5'd16, 7'b0110011}, {12'b1, 5'd16, 3'b100, 5'd16, 7'b0010011}, {7'b0000000, 5'd1, 5'd2, 3'b011, 5'd17, 7'b0110011}, {12'b0, 5'd17, 3'b100, 5'd17, 7'b0010011}, {12'b10101, 5'd2, 3'b011, 5'd18, 7'b0010011}, {12'b0, 5'd18, 3'b100, 5'd18, 7'b0010011}, {20'b00000000000000000000, 5'd19, 7'b0110111}, {12'b1, 5'd19, 3'b100, 5'd19, 7'b0010011}, {6'b010000, 6'b1, 5'd3, 3'b101, 5'd20, 7'b0010011}, {12'b111111111111, 5'd20, 3'b100, 5'd20, 7'b0010011}, {7'b0000000, 5'd1, 5'd3, 3'b010, 5'd21, 7'b0110011}, {12'b0, 5'd21, 3'b100, 5'd21, 7'b0010011}, {12'b1, 5'd3, 3'b010, 5'd22, 7'b0010011}, {12'b0, 5'd22, 3'b100, 5'd22, 7'b0010011}, {7'b0100000, 5'd2, 5'd1, 3'b101, 5'd23, 7'b0110011}, {12'b1, 5'd23, 3'b100, 5'd23, 7'b0010011}, {20'b00000000000000000100, 5'd4, 7'b0010111}, {6'b000000, 6'b111, 5'd4, 3'b101, 5'd24, 7'b0010011}, {12'b10000000, 5'd24, 3'b100, 5'd24, 7'b0010011}, {1'b0, 10'b0000000010, 1'b0, 8'b00000000, 5'd25, 7'b1101111}, {20'b00000000000000000000, 5'd4, 7'b0010111}, {7'b0000000, 5'd4, 5'd25, 3'b100, 5'd25, 7'b0110011}, {12'b1, 5'd25, 3'b100, 5'd25, 7'b0010011}, {12'b10000, 5'd4, 3'b000, 5'd26, 7'b1100111}, {7'b0100000, 5'd4, 5'd26, 3'b000, 5'd26, 7'b0110011}, {12'b111111110001, 5'd26, 3'b000, 5'd26, 7'b0010011}, {7'b0000000, 5'd1, 5'd2, 3'b010, 5'b00001, 7'b0100011}, {12'b1, 5'd2, 3'b010, 5'd27, 7'b0000011}, {12'b10100, 5'd27, 3'b100, 5'd27, 7'b0010011}, {12'b1, 5'd0, 3'b000, 5'd28, 7'b0010011}, {12'b1, 5'd0, 3'b000, 5'd29, 7'b0010011}, {12'b1, 5'd0, 3'b000, 5'd30, 7'b0010011}, {1'b0, 10'b0000000000, 1'b0, 8'b00000000, 5'd0, 7'b1101111}};
-
+   
    //---------------------------------------------------------------------------------
 
 //_\SV
@@ -80,7 +80,7 @@ line 2 "top.tlv" 0
    assign L0_rs2_valid_a0 = L0_is_r_instr_a0 || L0_is_s_instr_a0 || L0_is_b_instr_a0;
    assign L0_funct3_valid_a0 = L0_is_r_instr_a0 || L0_is_i_instr_a0 || L0_is_s_instr_a0 || L0_is_b_instr_a0;
    assign L0_imm_valid_a0 = L0_is_i_instr_a0 || L0_is_s_instr_a0 || L0_is_b_instr_a0 || L0_is_u_instr_a0 || L0_is_j_instr_a0;
-
+   `BOGUS_USE(L0_funct3_valid_a0 L0_imm_valid_a0)
    // The fields containing the immediate value vary based on instruction type.
    // Here we construct the immediate value from the instruction bits depending
    // on instruction type.
@@ -206,50 +206,80 @@ line 2 "top.tlv" 0
    assign failed = cyc_cnt > 60;
 
    // Instantiate the Makerchip register file
+   `line 125 "/raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv" 1
       assign L0_rf1_wr_en_a0 = L0_rd_valid_a0;
       assign L0_rf1_wr_index_a0[$clog2(32)-1:0]  = L0_rd_a0;
       assign L0_rf1_wr_data_a0[32-1:0] = L0_rf_wr_data_a0;
-
+      
       assign L0_rf1_rd_en1_a0 = L0_rs1_valid_a0;
       assign L0_rf1_rd_index1_a0[$clog2(32)-1:0] = L0_rs1_a0;
-
+      
       assign L0_rf1_rd_en2_a0 = L0_rs2_valid_a0;
       assign L0_rf1_rd_index2_a0[$clog2(32)-1:0] = L0_rs2_a0;
-
+      
       for (xreg = 0; xreg <= 31; xreg++) begin : L1_Xreg logic L1_wr_a0; //_/xreg
          assign L1_wr_a0 = L0_rf1_wr_en_a0 && (L0_rf1_wr_index_a0 == xreg);
          assign Xreg_value_n1[xreg][32-1:0] = L0_reset_a0 ? xreg              :
                                     L1_wr_a0      ? L0_rf1_wr_data_a0 :
                                                Xreg_value_a0[xreg][32-1:0]; end
-
+      
       assign L0_src1_value_a0[32-1:0]  =  L0_rf1_rd_en1_a0 ? Xreg_value_a0[L0_rf1_rd_index1_a0] : 'X;
       assign L0_src2_value_a0[32-1:0]  =  L0_rf1_rd_en2_a0 ? Xreg_value_a0[L0_rf1_rd_index2_a0] : 'X;
-
+      
       for (xreg = 0; xreg <= 31; xreg++) begin : L1b_Xreg //_/xreg
          /* Viz omitted here */
 
          end
-
+            
    //_\end_source
+   `line 210 "top.tlv" 2
 
    // Instantiate the Makerchip data memory file
+   `line 187 "/raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv" 1
       // Allow expressions for most inputs, so define input signals.
       assign L0_dmem1_wr_en_a0 = L0_is_s_instr_a0;
       assign L0_dmem1_addr_a0[$clog2(32)-1:0] = L0_result_a0[6:2];
       assign L0_dmem1_wr_data_a0[32-1:0] = L0_src2_value_a0[31:0];
-
+      
       assign L0_dmem1_rd_en_a0 = L0_is_load_a0;
-
+      
       for (dmem = 0; dmem <= 31; dmem++) begin : L1_Dmem logic L1_wr_a0; //_/dmem
          assign L1_wr_a0 = L0_dmem1_wr_en_a0 && (L0_dmem1_addr_a0 == dmem);
          assign Dmem_value_n1[dmem][32-1:0] = L0_reset_a0 ? 0                 :
                                  L1_wr_a0         ? L0_dmem1_wr_data_a0 :
                                                Dmem_value_a0[dmem][32-1:0]; end
-
+      
       assign L0_ld_data_a0[32-1:0] = L0_dmem1_rd_en_a0 ? Dmem_value_a0[L0_dmem1_addr_a0] : 'X;
       for (dmem = 0; dmem <= 31; dmem++) begin : L1b_Dmem //_/dmem
          /* Viz omitted here */
 
          end
    //_\end_source
+   `line 213 "top.tlv" 2
 
+   // Instantiate the Makerchip cpu viz
+   `line 241 "/raw.githubusercontent.com/stevehoover/LFBuildingaRISCVCPUCore/main/lib/riscvshelllib.tlv" 1
+      // String representations of the instructions for debug.
+      /*SV_plus*/
+         // A default signal for ones that are not found.
+         logic sticky_zero;
+         assign sticky_zero = 0;
+         // Instruction strings from the assembler.
+         logic [40*8-1:0] instr_strs [0:58];
+         assign instr_strs = '{ "(I) ADDI x1,x0,10101                    ",  "(I) ADDI x2,x0,111                      ",  "(I) ADDI x3,x0,111111111100             ",  "(I) ANDI x5,x1,1011100                  ",  "(I) XORI x5,x5,10101                    ",  "(I) ORI x6,x1,1011100                   ",  "(I) XORI x6,x6,1011100                  ",  "(I) ADDI x7,x1,111                      ",  "(I) XORI x7,x7,11101                    ",  "(I) SLLI x8,x1,110                      ",  "(I) XORI x8,x8,10101000001              ",  "(I) SRLI x9,x1,10                       ",  "(I) XORI x9,x9,100                      ",  "(R) AND r10,x1,x2                       ",  "(I) XORI x10,x10,100                    ",  "(R) OR x11,x1,x2                        ",  "(I) XORI x11,x11,10110                  ",  "(R) XOR x12,x1,x2                       ",  "(I) XORI x12,x12,10011                  ",  "(R) ADD x13,x1,x2                       ",  "(I) XORI x13,x13,11101                  ",  "(R) SUB x14,x1,x2                       ",  "(I) XORI x14,x14,1111                   ",  "(R) SLL x15,x2,x2                       ",  "(I) XORI x15,x15,1110000001             ",  "(R) SRL x16,x1,x2                       ",  "(I) XORI x16,x16,1                      ",  "(R) SLTU x17,x2,x1                      ",  "(I) XORI x17,x17,0                      ",  "(I) SLTIU x18,x2,10101                  ",  "(I) XORI x18,x18,0                      ",  "(U) LUI x19,0                           ",  "(I) XORI x19,x19,1                      ",  "(I) SRAI x20,x3,1                       ",  "(I) XORI x20,x20,111111111111           ",  "(R) SLT x21,x3,x1                       ",  "(I) XORI x21,x21,0                      ",  "(I) SLTI x22,x3,1                       ",  "(I) XORI x22,x22,0                      ",  "(R) SRA x23,x1,x2                       ",  "(I) XORI x23,x23,1                      ",  "(U) AUIPC x4,100                        ",  "(I) SRLI x24,x4,111                     ",  "(I) XORI x24,x24,10000000               ",  "(J) JAL x25,10                          ",  "(U) AUIPC x4,0                          ",  "(R) XOR x25,x25,x4                      ",  "(I) XORI x25,x25,1                      ",  "(I) JALR x26,x4,10000                   ",  "(R) SUB x26,x26,x4                      ",  "(I) ADDI x26,x26,111111110001           ",  "(S) SW x2,x1,1                          ",  "(I) LW x27,x2,1                         ",  "(I) XORI x27,x27,10100                  ",  "(I) ADDI x28,x0,1                       ",  "(I) ADDI x29,x0,1                       ",  "(I) ADDI x30,x0,1                       ",  "(J) JAL x0,0                            ",  "END                                     "};
+
+      /* Viz omitted here */
+
+      for (imem = 0; imem <= 57; imem++) begin : L1_Imem //_/imem
+         /* Viz omitted here */
+
+         end
+
+   //_\end_source
+   `line 216 "top.tlv" 2
+//_\SV
+   endmodule
+
+
+// Undefine macros defined by SandPiper (in "top_gen.sv").
+`undef BOGUS_USE
